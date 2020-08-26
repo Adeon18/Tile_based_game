@@ -46,7 +46,9 @@ WEAPONS['pistol'] = {'bullet_speed': 550,
                      'kickback': 200,
                      'spread': 7,
                      'bullet_size': 'lg',
-                     'bullet_count': 1}
+                     'bullet_count': 1,
+                     'player_speed': 300,
+                     'player_img': 'manBlue_gun.png'}
 WEAPONS['shotgun'] = {'bullet_speed': 400,
                       'bullet_lifetime': 500,
                       'rate': 900,
@@ -54,7 +56,20 @@ WEAPONS['shotgun'] = {'bullet_speed': 400,
                       'kickback': 1000,
                       'spread': 20,
                       'bullet_size': 'sm',
-                      'bullet_count': 12}
+                      'bullet_count': 12,
+                      'player_speed': 200,
+                      'player_img': 'player_shotgun.png'}
+WEAPONS['rifle'] = {'bullet_speed': 650,
+                    'bullet_lifetime': 1200,
+                     'rate': 100,
+                     'bullet_damage': 8,
+                     'kickback': 150,
+                     'spread': 2,
+                     'bullet_size': 'sm',
+                     'bullet_count': 1,
+                     'player_speed': 250,
+                     'player_img': 'player_rifle.png'}
+
 
 # Mob settings
 ZOMBIE_IMG = 'zoimbie1_hold.png'
@@ -86,10 +101,17 @@ ITEMS_LAYER = 1
 
 # Items
 ITEM_IMAGES = {'health': 'health_pack.png',
-               'shotgun': 'obj_shotgun.png'}
+               'pistol': 'pistol.png',
+               'shotgun': 'shotgun.png',
+               'rifle': 'rifle.png'}
 HEALTH_REFILL = 30
 BOB_RANGE = 15
-BOB_SPEED = 0.5
+BOB_SPEED = 0.25
+
+# HUD settings
+GUN_CIRCLE_FILL = (184, 14, 15)
+GUN_CIRCLE_CENTER = (260, 40)
+BG_RECT_FILL = (128, 115, 122)
 
 # Sounds
 BG_MUSIC = 'espionage.ogg'
@@ -98,7 +120,8 @@ ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav', 'zombie
                       'zombie-roar-3.wav', 'zombie-roar-5.wav', 'zombie-roar-6.wav', 'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
 WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
-                 'shotgun': ['shotgun.wav']}
+                 'shotgun': ['shotgun.wav'],
+                 'rifle': ['pistol.wav']}
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}

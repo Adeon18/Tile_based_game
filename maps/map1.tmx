@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="305">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="308">
  <tileset firstgid="1" source="Kenney topdown pack.tsx"/>
  <layer id="1" name="Ground" width="50" height="30">
   <data encoding="csv">
@@ -410,5 +410,8 @@
   <object id="301" name="zombie" x="1888" y="400" width="32" height="32"/>
   <object id="302" name="zombie" x="1936" y="464" width="32" height="32"/>
   <object id="303" name="zombie" x="1744" y="336" width="32" height="32"/>
+  <object id="305" name="rifle" x="144" y="720" width="32" height="32"/>
+  <object id="306" name="rifle" x="768" y="1808" width="32" height="32"/>
+  <object id="307" name="shotgun" x="512" y="1248" width="32" height="32"/>
  </objectgroup>
 </map>

@@ -9,33 +9,13 @@ from settings import *
 from sprites import *
 from tilemap import *
 
-
-# HUD funcs
-def draw_player_health(surf, x, y, pct):
-    if pct < 0:
-        pct = 0
-    BAR_LENGTH = 100
-    BAR_HEIGHT = 20
-    fill = pct * BAR_LENGTH
-    outline_rect = pygame.Rect(0, 0, BAR_LENGTH, BAR_HEIGHT)
-    fill_rect = (0, 0, fill, BAR_HEIGHT)
-    if pct > 0.6:
-        col = GREEN
-    elif pct > 0.3:
-        col = YELLOW
-    else:
-        col = RED
-    pygame.draw.rect(surf, col, fill_rect)
-    pygame.draw.rect(surf, BLACK, outline_rect, 3)
-
-
 class Game:
     def __init__(self):
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.mixer.init()
         pygame.init()
-        #self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        #self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.scr_width, self.scr_height = pygame.display.get_surface().get_size()
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
@@ -46,28 +26,37 @@ class Game:
         img_folder = path.join(game_folder, 'img')
         snd_folder = path.join(game_folder, 'snd')
         music_folder = path.join(game_folder, 'music')
+        effects_folder = path.join(img_folder, 'effects')
+        item_folder = path.join(img_folder, 'items')
+        player_folder = path.join(img_folder, 'player')
+        zombie_folder = path.join(img_folder, 'zombie')
         self.map_folder = path.join(game_folder, 'maps')
         self.dim_screen = pygame.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
-        self.player_img = pygame.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
-        self.zombie_img = pygame.image.load(path.join(img_folder, ZOMBIE_IMG)).convert_alpha()
+
+        self.player_pistol = pygame.image.load(path.join(player_folder, WEAPONS['pistol']['player_img'])).convert_alpha()
+        self.player_shotgun = pygame.image.load(path.join(player_folder, WEAPONS['shotgun']['player_img'])).convert_alpha()
+        self.player_rifle = pygame.image.load(path.join(player_folder, WEAPONS['rifle']['player_img'])).convert_alpha()
+        self.player_imgs = {'pistol': self.player_pistol,
+                            'shotgun': self.player_shotgun,
+                            'rifle': self.player_rifle}
+
+        self.zombie_img = pygame.image.load(path.join(zombie_folder, ZOMBIE_IMG)).convert_alpha()
         self.bullet_imgs = {}
-        self.bullet_imgs['lg'] = pygame.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
+        self.bullet_imgs['lg'] = pygame.image.load(path.join(item_folder, BULLET_IMG)).convert_alpha()
         self.bullet_imgs['sm'] = pygame.transform.scale(self.bullet_imgs['lg'], (10, 10))
-        self.wall_img = pygame.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
-        self.wall_img = pygame.transform.scale(self.wall_img, (TILESIZE, TILESIZE))
-        self.splat = pygame.image.load(path.join(img_folder, SPLAT_IMG)).convert_alpha()
+        self.splat = pygame.image.load(path.join(effects_folder, SPLAT_IMG)).convert_alpha()
         self.splat = pygame.transform.scale(self.splat, (TILESIZE, TILESIZE))
         self.gun_flashes = []
         for img in MUZZLE_FLASHES:
-            self.gun_flashes.append(pygame.image.load(path.join(img_folder, img)).convert_alpha())
+            self.gun_flashes.append(pygame.image.load(path.join(effects_folder, img)).convert_alpha())
         self.item_imgs = {}
         for item in ITEM_IMAGES:
-            self.item_imgs[item] = pygame.image.load(path.join(img_folder, ITEM_IMAGES[item])).convert_alpha()
+            self.item_imgs[item] = pygame.image.load(path.join(item_folder, ITEM_IMAGES[item])).convert_alpha()
         # Lighting effect
         self.fog = pygame.Surface((self.scr_width, self.scr_height))
         self.fog.fill(NIGHT_COLOR)
-        self.light_mask = pygame.image.load(path.join(img_folder, LIGHT_MASK)).convert_alpha()
+        self.light_mask = pygame.image.load(path.join(effects_folder, LIGHT_MASK)).convert_alpha()
         self.light_mask = pygame.transform.scale(self.light_mask, LIGHT_RADIUS)
         self.light_rect = self.light_mask.get_rect()
         # Sound loading
@@ -131,7 +120,7 @@ class Game:
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
             if tile_object.name == 'zombie':
                 Mob(self, obj_center.x, obj_center.y)
-            if tile_object.name in ['health', 'shotgun']:
+            if tile_object.name in ['health', 'shotgun', 'rifle']:
                 Item(self, obj_center, tile_object.name)
         self.camera = Camera(self, self.map.width, self.map.height)
         self.draw_debug = False
@@ -169,9 +158,15 @@ class Game:
                 hit.kill()
                 self.player.add_health(HEALTH_REFILL)
                 self.effects_sounds['health_up'].play()
-            if hit.type == 'shotgun':
+            if hit.type == 'shotgun' and 'shotgun' not in self.player.weapons:
                 hit.kill()
                 self.player.weapon = 'shotgun'
+                self.player.weapons.append('shotgun')
+                self.effects_sounds['gun_pickup'].play()
+            if hit.type == 'rifle' and 'rifle' not in self.player.weapons:
+                hit.kill()
+                self.player.weapon = 'rifle'
+                self.player.weapons.append('rifle')
                 self.effects_sounds['gun_pickup'].play()
 
         # Mobs hit player
@@ -222,8 +217,7 @@ class Game:
         if self.night:
             self.render_fog()
         # HUD funcs
-        draw_player_health(self.screen, 10, 10, self.player.health / PLAYER_HEALTH)
-        self.draw_text('Zombies-{}'.format(len(self.mobs)), 30, BLACK, self.scr_width - 50, 50, align='ne')
+        self.draw_hud()
         # What to draw if paused
         if self.paused:
             self.screen.blit(self.dim_screen, (0, 0))
@@ -299,6 +293,46 @@ class Game:
         self.light_rect.center = self.camera.apply(self.player).center
         self.fog.blit(self.light_mask, self.light_rect)
         self.screen.blit(self.fog, (0, 0), special_flags=pygame.BLEND_MULT)
+
+    def draw_hud(self):
+        self.draw_hud_bg()
+        self.draw_player_health(0, 0, self.player.health / PLAYER_HEALTH)
+        self.draw_current_gun()
+        self.draw_text('Zombies-{}'.format(len(self.mobs)), 30, BLACK, self.scr_width - 50, 50, align='ne')
+
+    def draw_player_health(self, x, y, pct):
+        if pct < 0:
+            pct = 0
+        BAR_LENGTH = 110
+        BAR_HEIGHT = 25
+        fill = pct * BAR_LENGTH
+        outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+        fill_rect = (x, y, fill, BAR_HEIGHT)
+        if pct > 0.6:
+            col = GREEN
+        elif pct > 0.3:
+            col = YELLOW
+        else:
+            col = RED
+        pygame.draw.rect(self.screen, col, fill_rect)
+        pygame.draw.rect(self.screen, BLACK, outline_rect, 3)
+
+    def draw_current_gun(self):
+        weapon_icon = pygame.transform.scale(self.item_imgs[self.player.weapon], (48, 48))
+        weapon_rect = weapon_icon.get_rect()
+        weapon_rect.center = GUN_CIRCLE_CENTER
+        self.draw_text('{}'.format(self.player.weapon), 24, BLACK, 115, 1, 'nw')
+        self.screen.blit(weapon_icon, weapon_rect)
+
+    def draw_hud_bg(self):
+        # Bg rect and outline
+        bg_rect = pygame.Rect(0, 0, 300, 80)
+        bg_rect_outline = pygame.Rect(0, 0, 300, 80)
+        pygame.draw.rect(self.screen, BG_RECT_FILL, bg_rect)
+        pygame.draw.rect(self.screen, BLACK, bg_rect_outline, 3)
+        # Circle and outline
+        pygame.draw.circle(self.screen, GUN_CIRCLE_FILL, GUN_CIRCLE_CENTER, 35)
+        pygame.draw.circle(self.screen, BLACK, GUN_CIRCLE_CENTER, 36, 3)
 
 
 # create the game object

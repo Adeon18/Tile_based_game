@@ -34,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.groups = game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.player_img
+        self.image = game.player_pistol
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = PLAYER_HIT_RECT
@@ -44,7 +44,9 @@ class Player(pygame.sprite.Sprite):
         self.rot = 0
         self.last_shot = 0
         self.health = PLAYER_HEALTH
+        self.weapons = ['pistol']
         self.weapon = 'pistol'
+        self.c = itertools.cycle(self.weapons)
         self.damaged = False
 
     def get_keys(self):
@@ -56,16 +58,33 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.rot_speed = -PLAYER_ROT_SPEED
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.vel = vec(PLAYER_SPEED, 0).rotate(-self.rot)
+            self.vel = vec(WEAPONS[self.weapon]['player_speed'], 0).rotate(-self.rot)
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.vel = vec(-PLAYER_SPEED / 2, 0).rotate(-self.rot)
+            self.vel = vec(-WEAPONS[self.weapon]['player_speed'] / 2, 0).rotate(-self.rot)
         if keys[pygame.K_SPACE]:
             self.shoot()
+        if keys[pygame.K_1]:
+            self.weapon = self.weapons[0]
+        if keys[pygame.K_2]:
+            try:
+                self.weapon = self.weapons[1]
+            except IndexError:
+                pass
+        if keys[pygame.K_3]:
+            try:
+                self.weapon = self.weapons[2]
+            except IndexError:
+                pass
+
 
     def update(self):
         self.get_keys()
+        self.image = self.game.player_imgs[self.weapon]
+        self.rect = self.image.get_rect()
+        self.rect.center = self.pos
+
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
-        self.image = pygame.transform.rotate(self.game.player_img, self.rot)
+        self.image = pygame.transform.rotate(self.image, self.rot)
         if self.damaged:
             try:
                 self.image.fill((255, 255, 255, next(self.damage_alpha)), special_flags=pygame.BLEND_RGBA_MULT)
