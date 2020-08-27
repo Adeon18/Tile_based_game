@@ -34,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.groups = game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.player_pistol
+        self.image = self.game.player_imgs['p2k']
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = PLAYER_HIT_RECT
@@ -44,9 +44,10 @@ class Player(pygame.sprite.Sprite):
         self.rot = 0
         self.last_shot = 0
         self.health = PLAYER_HEALTH
-        self.weapons = ['pistol']
-        self.weapon = 'pistol'
-        self.c = itertools.cycle(self.weapons)
+        self.armour = 0
+        # we create this dict and then append values to it
+        self.weapons = {'pistol': 'p2k'}
+        self.weapon = self.weapons['pistol']
         self.damaged = False
 
     def get_keys(self):
@@ -64,22 +65,27 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_SPACE]:
             self.shoot()
         if keys[pygame.K_1]:
-            self.weapon = self.weapons[0]
+            self.weapon = self.weapons['pistol']
         if keys[pygame.K_2]:
             try:
-                self.weapon = self.weapons[1]
-            except IndexError:
+                self.weapon = self.weapons['rifle']
+            except KeyError:
                 pass
         if keys[pygame.K_3]:
             try:
-                self.weapon = self.weapons[2]
-            except IndexError:
+                self.weapon = self.weapons['shotgun']
+            except KeyError:
                 pass
 
 
     def update(self):
         self.get_keys()
-        self.image = self.game.player_imgs[self.weapon]
+        print(self.weapons)
+        # Check if we have armor on
+        if self.armour > 0:
+            self.image = self.game.player_imgs_kevlar[self.weapon]
+        else:
+            self.image = self.game.player_imgs[self.weapon]
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
 

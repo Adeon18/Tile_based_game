@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="308">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="310">
  <tileset firstgid="1" source="Kenney topdown pack.tsx"/>
  <layer id="1" name="Ground" width="50" height="30">
   <data encoding="csv">
@@ -247,7 +247,7 @@
   <object id="96" name="wall" x="336" y="1728" width="96" height="192"/>
   <object id="97" name="wall" x="277.254" y="1740.09" width="32" height="32" rotation="16.645"/>
   <object id="98" name="wall" x="464" y="1488" width="32" height="32"/>
-  <object id="99" name="shotgun" x="592" y="1616" width="32" height="32"/>
+  <object id="99" name="saved_off" x="592" y="1616" width="32" height="32"/>
   <object id="100" name="wall" x="1440" y="96" width="64" height="64"/>
   <object id="101" name="wall" x="864" y="32" width="64" height="64"/>
   <object id="102" name="wall" x="608" y="96" width="64" height="64"/>
@@ -410,8 +410,9 @@
   <object id="301" name="zombie" x="1888" y="400" width="32" height="32"/>
   <object id="302" name="zombie" x="1936" y="464" width="32" height="32"/>
   <object id="303" name="zombie" x="1744" y="336" width="32" height="32"/>
-  <object id="305" name="rifle" x="144" y="720" width="32" height="32"/>
-  <object id="306" name="rifle" x="768" y="1808" width="32" height="32"/>
-  <object id="307" name="shotgun" x="512" y="1248" width="32" height="32"/>
+  <object id="305" name="ak47" x="1296" y="512" width="32" height="32"/>
+  <object id="306" name="ak47" x="768" y="1808" width="32" height="32"/>
+  <object id="308" name="kevlar" x="144" y="784" width="32" height="32"/>
+  <object id="309" name="saved_off" x="144" y="1232" width="32" height="32"/>
  </objectgroup>
 </map>

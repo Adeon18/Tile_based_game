@@ -34,12 +34,14 @@ class Game:
         self.dim_screen = pygame.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
 
-        self.player_pistol = pygame.image.load(path.join(player_folder, WEAPONS['pistol']['player_img'])).convert_alpha()
-        self.player_shotgun = pygame.image.load(path.join(player_folder, WEAPONS['shotgun']['player_img'])).convert_alpha()
-        self.player_rifle = pygame.image.load(path.join(player_folder, WEAPONS['rifle']['player_img'])).convert_alpha()
-        self.player_imgs = {'pistol': self.player_pistol,
-                            'shotgun': self.player_shotgun,
-                            'rifle': self.player_rifle}
+        self.player_imgs = {}
+        for item in PLAYER_IMGS:
+            self.player_imgs[item] = pygame.image.load(path.join(player_folder, 
+                                                                 PLAYER_IMGS[item])).convert_alpha()
+        self.player_imgs_kevlar = {}
+        for item in PLAYER_IMGS_KEVLAR:
+            self.player_imgs_kevlar[item] = pygame.image.load(path.join(player_folder, 
+                                                                        PLAYER_IMGS_KEVLAR[item])).convert_alpha()
 
         self.zombie_img = pygame.image.load(path.join(zombie_folder, ZOMBIE_IMG)).convert_alpha()
         self.bullet_imgs = {}
@@ -120,7 +122,7 @@ class Game:
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
             if tile_object.name == 'zombie':
                 Mob(self, obj_center.x, obj_center.y)
-            if tile_object.name in ['health', 'shotgun', 'rifle']:
+            if tile_object.name in ['health', 'saved_off', 'ak47', 'kevlar']:
                 Item(self, obj_center, tile_object.name)
         self.camera = Camera(self, self.map.width, self.map.height)
         self.draw_debug = False
@@ -158,21 +160,36 @@ class Game:
                 hit.kill()
                 self.player.add_health(HEALTH_REFILL)
                 self.effects_sounds['health_up'].play()
-            if hit.type == 'shotgun' and 'shotgun' not in self.player.weapons:
+            if hit.type == 'saved_off':
+                try:
+                    if 'saved off' not in self.player.weapons['shotgun']:
+                        pass
+                except KeyError:
+                    hit.kill()
+                    self.player.weapon = 'saved_off'
+                    self.player.weapons.update(shotgun='saved_off')
+                    self.effects_sounds['gun_pickup'].play()
+            if hit.type == 'ak47':
+                try:
+                    if 'ak47' not in self.player.weapons['rifle']:
+                        pass
+                except KeyError:
+                    hit.kill()
+                    self.player.weapon = 'ak47'
+                    self.player.weapons.update(rifle='ak47')
+                    self.effects_sounds['gun_pickup'].play()
+            if hit.type == 'kevlar' and self.player.armour < PLAYER_ARMOUR:
                 hit.kill()
-                self.player.weapon = 'shotgun'
-                self.player.weapons.append('shotgun')
-                self.effects_sounds['gun_pickup'].play()
-            if hit.type == 'rifle' and 'rifle' not in self.player.weapons:
-                hit.kill()
-                self.player.weapon = 'rifle'
-                self.player.weapons.append('rifle')
+                self.player.armour = PLAYER_ARMOUR
                 self.effects_sounds['gun_pickup'].play()
 
         # Mobs hit player
         hits = pygame.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
         for hit in hits:
-            self.player.health -= ZOMBIE_DAMAGE
+            if self.player.armour > 0:
+                self.player.armour -= ZOMBIE_DAMAGE
+            else:
+                self.player.health -= ZOMBIE_DAMAGE
             hit.vel = (0, 0)
             if self.player.health <= 0:
                 self.playing = False
@@ -297,6 +314,7 @@ class Game:
     def draw_hud(self):
         self.draw_hud_bg()
         self.draw_player_health(0, 0, self.player.health / PLAYER_HEALTH)
+        self.draw_armour_health(0, 25, self.player.armour / PLAYER_ARMOUR)
         self.draw_current_gun()
         self.draw_text('Zombies-{}'.format(len(self.mobs)), 30, BLACK, self.scr_width - 50, 50, align='ne')
 
@@ -316,8 +334,10 @@ class Game:
             col = RED
         pygame.draw.rect(self.screen, col, fill_rect)
         pygame.draw.rect(self.screen, BLACK, outline_rect, 3)
+        self.draw_text('health', 20, BLACK, outline_rect.centerx, outline_rect.centery + 3)
 
     def draw_current_gun(self):
+        # Get the current weapon and resize it for the icon
         weapon_icon = pygame.transform.scale(self.item_imgs[self.player.weapon], (48, 48))
         weapon_rect = weapon_icon.get_rect()
         weapon_rect.center = GUN_CIRCLE_CENTER
@@ -333,6 +353,19 @@ class Game:
         # Circle and outline
         pygame.draw.circle(self.screen, GUN_CIRCLE_FILL, GUN_CIRCLE_CENTER, 35)
         pygame.draw.circle(self.screen, BLACK, GUN_CIRCLE_CENTER, 36, 3)
+
+    def draw_armour_health(self, x, y, pct):
+        if pct < 0:
+            pct = 0
+        BAR_LENGTH = 110
+        BAR_HEIGHT = 25
+        fill = pct * BAR_LENGTH
+        outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+        fill_rect = (x, y, fill, BAR_HEIGHT)
+        pygame.draw.rect(self.screen, KEVLAR_COLOR, fill_rect)
+        pygame.draw.rect(self.screen, BLACK, outline_rect, 3)
+        self.draw_text('armour', 20, BLACK, outline_rect.centerx, outline_rect.centery + 3)
+
 
 
 # create the game object

@@ -14,7 +14,7 @@ BROWN = (106, 55, 5)
 CYAN = (104, 243, 243)
 
 # game settings
-WIDTH = 1024   # 16 * 64 or 32 * 32 or 64 * 16
+WIDTH = 1024  # 16 * 64 or 32 * 32 or 64 * 16
 HEIGHT = 768  # 16 * 48 or 32 * 24 or 64 * 12
 FPS = 120
 TITLE = "Tilemap Demo"
@@ -26,11 +26,17 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 WALL_IMG = 'tileGreen.png'
 
-
 PLAYER_HEALTH = 100
+PLAYER_ARMOUR = 100
 PLAYER_SPEED = 300
 PLAYER_ROT_SPEED = 250  # Deg per sec
-PLAYER_IMG = 'manBlue_gun.png'
+PLAYER_IMGS = {'ak47': 'player_ak47.png',
+               'saved_off': 'player_soff.png',
+               'p2k': 'player_p2k.png'}
+PLAYER_IMGS_KEVLAR = {'p2k': 'player_kevlar_p2k.png',
+                      'ak47': 'player_kevlar_ak47.png',
+                      'saved_off': 'player_kevlar_soff.png'}
+
 PLAYER_HIT_RECT = pygame.Rect(0, 0, 37, 37)
 BARREL_OFFSET = vec(23, 11)
 KICKBACK = 200
@@ -39,37 +45,36 @@ GUN_SPREAD = 7
 # Gun settings
 BULLET_IMG = 'bullet.png'
 WEAPONS = {}
-WEAPONS['pistol'] = {'bullet_speed': 550,
-                     'bullet_lifetime': 1000,
-                     'rate': 250,
-                     'bullet_damage': 10,
-                     'kickback': 200,
-                     'spread': 7,
-                     'bullet_size': 'lg',
-                     'bullet_count': 1,
-                     'player_speed': 300,
-                     'player_img': 'manBlue_gun.png'}
-WEAPONS['shotgun'] = {'bullet_speed': 400,
-                      'bullet_lifetime': 500,
-                      'rate': 900,
-                      'bullet_damage': 5,
-                      'kickback': 1000,
-                      'spread': 20,
-                      'bullet_size': 'sm',
-                      'bullet_count': 12,
-                      'player_speed': 200,
-                      'player_img': 'player_shotgun.png'}
-WEAPONS['rifle'] = {'bullet_speed': 650,
-                    'bullet_lifetime': 1200,
-                     'rate': 100,
-                     'bullet_damage': 8,
-                     'kickback': 150,
-                     'spread': 2,
-                     'bullet_size': 'sm',
-                     'bullet_count': 1,
-                     'player_speed': 250,
-                     'player_img': 'player_rifle.png'}
-
+WEAPONS['p2k'] = {'bullet_speed': 550,
+                  'bullet_lifetime': 1000,
+                  'rate': 250,
+                  'bullet_damage': 10,
+                  'kickback': 200,
+                  'spread': 7,
+                  'bullet_size': 'lg',
+                  'bullet_count': 1,
+                  'player_speed': 300,
+                  'player_img': 'player_kevlar_rifle.png'}
+WEAPONS['saved_off'] = {'bullet_speed': 400,
+                        'bullet_lifetime': 500,
+                        'rate': 900,
+                        'bullet_damage': 5,
+                        'kickback': 1000,
+                        'spread': 20,
+                        'bullet_size': 'sm',
+                        'bullet_count': 12,
+                        'player_speed': 200,
+                        'player_img': 'player_shotgun.png'}
+WEAPONS['ak47'] = {'bullet_speed': 650,
+                   'bullet_lifetime': 1200,
+                   'rate': 100,
+                   'bullet_damage': 8,
+                   'kickback': 150,
+                   'spread': 2,
+                   'bullet_size': 'sm',
+                   'bullet_count': 1,
+                   'player_speed': 250,
+                   'player_img': 'player_rifle.png'}
 
 # Mob settings
 ZOMBIE_IMG = 'zoimbie1_hold.png'
@@ -101,9 +106,10 @@ ITEMS_LAYER = 1
 
 # Items
 ITEM_IMAGES = {'health': 'health_pack.png',
-               'pistol': 'pistol.png',
-               'shotgun': 'shotgun.png',
-               'rifle': 'rifle.png'}
+               'p2k': 'p2k.png',
+               'saved_off': 'saved_off.png',
+               'ak47': 'ak47.png',
+               'kevlar': 'vest.png'}
 HEALTH_REFILL = 30
 BOB_RANGE = 15
 BOB_SPEED = 0.25
@@ -112,6 +118,7 @@ BOB_SPEED = 0.25
 GUN_CIRCLE_FILL = (184, 14, 15)
 GUN_CIRCLE_CENTER = (260, 40)
 BG_RECT_FILL = (128, 115, 122)
+KEVLAR_COLOR = (27, 99, 213)
 
 # Sounds
 BG_MUSIC = 'espionage.ogg'
@@ -119,9 +126,9 @@ PLAYER_HIT_SOUNDS = ['pain/8.wav', 'pain/9.wav', 'pain/10.wav', 'pain/11.wav']
 ZOMBIE_MOAN_SOUNDS = ['brains2.wav', 'brains3.wav', 'zombie-roar-1.wav', 'zombie-roar-2.wav',
                       'zombie-roar-3.wav', 'zombie-roar-5.wav', 'zombie-roar-6.wav', 'zombie-roar-7.wav']
 ZOMBIE_HIT_SOUNDS = ['splat-15.wav']
-WEAPON_SOUNDS = {'pistol': ['pistol.wav'],
-                 'shotgun': ['shotgun.wav'],
-                 'rifle': ['pistol.wav']}
+WEAPON_SOUNDS = {'p2k': ['pistol.wav'],
+                 'saved_off': ['shotgun.wav'],
+                 'ak47': ['pistol.wav']}
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
                   'gun_pickup': 'gun_pickup.wav'}
