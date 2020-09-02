@@ -122,7 +122,7 @@ class Game:
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
             if tile_object.name == 'zombie':
                 Mob(self, obj_center.x, obj_center.y)
-            if tile_object.name in ['health', 'saved_off', 'ak47', 'kevlar']:
+            if tile_object.name in ['health', 'saved_off', 'ak47', 'kevlar', 'ammo_box', 'bullets']:
                 Item(self, obj_center, tile_object.name)
         self.camera = Camera(self, self.map.width, self.map.height)
         self.draw_debug = False
@@ -156,10 +156,12 @@ class Game:
         # Player hits items
         hits = pygame.sprite.spritecollide(self.player, self.items, False)
         for hit in hits:
+            # Health pack hits
             if hit.type == 'health' and self.player.health < PLAYER_HEALTH:
                 hit.kill()
                 self.player.add_health(HEALTH_REFILL)
                 self.effects_sounds['health_up'].play()
+            # Soff hits
             if hit.type == 'saved_off':
                 try:
                     if 'saved off' not in self.player.weapons['shotgun']:
@@ -167,8 +169,10 @@ class Game:
                 except KeyError:
                     hit.kill()
                     self.player.weapon = 'saved_off'
-                    self.player.weapons.update(shotgun='saved_off')
+                    self.player.weapons.update(shotgun='saved_off')###
+                    self.player.ammo.update(saved_off=WEAPONS['saved_off']['ammo'])###
                     self.effects_sounds['gun_pickup'].play()
+            # AK hits
             if hit.type == 'ak47':
                 try:
                     if 'ak47' not in self.player.weapons['rifle']:
@@ -176,12 +180,31 @@ class Game:
                 except KeyError:
                     hit.kill()
                     self.player.weapon = 'ak47'
-                    self.player.weapons.update(rifle='ak47')
+                    self.player.weapons.update(rifle='ak47')###
+                    self.player.ammo.update(ak47=WEAPONS['ak47']['ammo'])###
                     self.effects_sounds['gun_pickup'].play()
+            # Kevlar hits
             if hit.type == 'kevlar' and self.player.armour < PLAYER_ARMOUR:
                 hit.kill()
                 self.player.armour = PLAYER_ARMOUR
                 self.effects_sounds['gun_pickup'].play()
+            # Ammo hits
+            if hit.type == 'bullets':
+                if self.player.ammo[self.player.weapon] < WEAPONS[self.player.weapon]['max_ammo']:
+                    hit.kill()
+                    self.player.ammo[self.player.weapon] += WEAPONS[self.player.weapon]['ammo'] // 2
+                    if self.player.ammo[self.player.weapon] > WEAPONS[self.player.weapon]['max_ammo']:
+                        self.player.ammo[self.player.weapon] = WEAPONS[self.player.weapon]['max_ammo']
+                    self.effects_sounds['gun_pickup'].play()
+            # Ammo box hits
+            if hit.type == 'ammo_box':
+                for weapon in self.player.weapons.values():
+                    if self.player.ammo[weapon] < WEAPONS[weapon]['max_ammo']:
+                        self.player.ammo[weapon] += WEAPONS[weapon]['ammo']
+                        if self.player.ammo[weapon] > WEAPONS[weapon]['max_ammo']:
+                            self.player.ammo[weapon] = WEAPONS[weapon]['max_ammo']
+                        hit.kill()
+                        self.effects_sounds['gun_pickup'].play()
 
         # Mobs hit player
         hits = pygame.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
@@ -342,6 +365,8 @@ class Game:
         weapon_rect = weapon_icon.get_rect()
         weapon_rect.center = GUN_CIRCLE_CENTER
         self.draw_text('{}'.format(self.player.weapon), 24, BLACK, 115, 1, 'nw')
+        self.draw_text('ammo', 20, BLACK, 115, 27, 'nw')
+        self.draw_text('{}'.format(self.player.ammo[self.player.weapon]), 20, BLACK, 180, 27, 'nw')###
         self.screen.blit(weapon_icon, weapon_rect)
 
     def draw_hud_bg(self):

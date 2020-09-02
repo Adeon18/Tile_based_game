@@ -54,6 +54,8 @@ WEAPONS['p2k'] = {'bullet_speed': 550,
                   'bullet_size': 'lg',
                   'bullet_count': 1,
                   'player_speed': 300,
+                  'ammo': 60,
+                  'max_ammo': 180,
                   'player_img': 'player_kevlar_rifle.png'}
 WEAPONS['saved_off'] = {'bullet_speed': 400,
                         'bullet_lifetime': 500,
@@ -64,6 +66,8 @@ WEAPONS['saved_off'] = {'bullet_speed': 400,
                         'bullet_size': 'sm',
                         'bullet_count': 12,
                         'player_speed': 200,
+                        'ammo': 20,
+                        'max_ammo': 60,
                         'player_img': 'player_shotgun.png'}
 WEAPONS['ak47'] = {'bullet_speed': 650,
                    'bullet_lifetime': 1200,
@@ -74,6 +78,8 @@ WEAPONS['ak47'] = {'bullet_speed': 650,
                    'bullet_size': 'sm',
                    'bullet_count': 1,
                    'player_speed': 250,
+                   'ammo': 90,
+                   'max_ammo': 300,
                    'player_img': 'player_rifle.png'}
 
 # Mob settings
@@ -109,7 +115,9 @@ ITEM_IMAGES = {'health': 'health_pack.png',
                'p2k': 'p2k.png',
                'saved_off': 'saved_off.png',
                'ak47': 'ak47.png',
-               'kevlar': 'vest.png'}
+               'kevlar': 'vest.png',
+               'ammo_box': 'ammo_box.png',
+               'bullets': 'bullets.png'}
 HEALTH_REFILL = 30
 BOB_RANGE = 15
 BOB_SPEED = 0.25

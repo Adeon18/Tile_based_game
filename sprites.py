@@ -48,9 +48,12 @@ class Player(pygame.sprite.Sprite):
         # we create this dict and then append values to it
         self.weapons = {'pistol': 'p2k'}
         self.weapon = self.weapons['pistol']
+        self.ammo = {self.weapon: WEAPONS[self.weapon]['ammo']}##
         self.damaged = False
+        self.gun_keys = []
 
     def get_keys(self):
+        self.gun_keys = list(self.weapons.keys())##
         self.rot_speed = 0
         self.vel = vec(0, 0)
         keys = pygame.key.get_pressed()
@@ -62,8 +65,15 @@ class Player(pygame.sprite.Sprite):
             self.vel = vec(WEAPONS[self.weapon]['player_speed'], 0).rotate(-self.rot)
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             self.vel = vec(-WEAPONS[self.weapon]['player_speed'] / 2, 0).rotate(-self.rot)
-        if keys[pygame.K_SPACE]:
-            self.shoot()
+        if keys[pygame.K_SPACE]:##
+            if self.weapon == self.weapons['pistol'] and self.ammo[self.weapon] > 0:
+                self.shoot()
+            if 'rifle' in self.gun_keys:
+                if self.weapon == self.weapons['rifle'] and self.ammo[self.weapon] > 0:
+                    self.shoot()
+            if 'shotgun' in self.gun_keys:
+                if self.weapon == self.weapons['shotgun'] and self.ammo[self.weapon] > 0:
+                    self.shoot()
         if keys[pygame.K_1]:
             self.weapon = self.weapons['pistol']
         if keys[pygame.K_2]:
@@ -80,7 +90,6 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.get_keys()
-        print(self.weapons)
         # Check if we have armor on
         if self.armour > 0:
             self.image = self.game.player_imgs_kevlar[self.weapon]
@@ -120,6 +129,8 @@ class Player(pygame.sprite.Sprite):
             direction = vec(1, 0).rotate(-self.rot)
             # KIck the player back when shooting
             self.vel = vec(-WEAPONS[self.weapon]['kickback'], 0).rotate(-self.rot)
+            # Track the ammo
+            self.ammo[self.weapon] -= 1###
 
             for i in range(WEAPONS[self.weapon]['bullet_count']):
                 spread = random.uniform(-WEAPONS[self.weapon]['spread'],
