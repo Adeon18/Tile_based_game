@@ -97,6 +97,8 @@ MUZZLE_FLASHES = ['whitePuff15.png', 'whitePuff16.png', 'whitePuff17.png',
                   'whitePuff18.png']
 FLASH_DURATION = 40
 SPLAT_IMG = 'splat green.png'
+BROKEN_GLASS = 'broken_glass.png'
+BROKEN_DOOR = 'broken_door.png'
 DMG_APLHA = [i for i in range(0, 255, 25)]  # We get a list of i's
 NIGHT_COLOR = (20, 20, 20)
 LIGHT_RADIUS = (500, 500)
@@ -122,6 +124,13 @@ HEALTH_REFILL = 30
 BOB_RANGE = 15
 BOB_SPEED = 0.25
 
+# destructible obstacles
+
+DEST_OBS_IMAGES = {'window_h': 'window_h.png',
+                   'window_v': 'window_v.png',
+                   'door_h': 'door_h.png',
+                   'door_v': 'door_v.png'}
+
 # HUD settings
 GUN_CIRCLE_FILL = (184, 14, 15)
 GUN_CIRCLE_CENTER = (260, 40)
@@ -139,4 +148,7 @@ WEAPON_SOUNDS = {'p2k': ['pistol.wav'],
                  'ak47': ['pistol.wav']}
 EFFECTS_SOUNDS = {'level_start': 'level_start.wav',
                   'health_up': 'health_pack.wav',
-                  'gun_pickup': 'gun_pickup.wav'}
+                  'gun_pickup': 'gun_pickup.wav',
+                  'broken_glass': 'glass_break.wav',
+                  'broken_door': 'wood_break.wav',
+                  'hit_door': 'door_hit.wav'}

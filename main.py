@@ -30,6 +30,7 @@ class Game:
         item_folder = path.join(img_folder, 'items')
         player_folder = path.join(img_folder, 'player')
         zombie_folder = path.join(img_folder, 'zombie')
+        dest_obs_folder = path.join(img_folder, 'dest_obs')
         self.map_folder = path.join(game_folder, 'maps')
         self.dim_screen = pygame.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
@@ -47,14 +48,22 @@ class Game:
         self.bullet_imgs = {}
         self.bullet_imgs['lg'] = pygame.image.load(path.join(item_folder, BULLET_IMG)).convert_alpha()
         self.bullet_imgs['sm'] = pygame.transform.scale(self.bullet_imgs['lg'], (10, 10))
+        # Effects imgs load
         self.splat = pygame.image.load(path.join(effects_folder, SPLAT_IMG)).convert_alpha()
         self.splat = pygame.transform.scale(self.splat, (TILESIZE, TILESIZE))
+        self.broken_window = pygame.image.load(path.join(effects_folder, BROKEN_GLASS)).convert_alpha()
+        self.broken_door = pygame.image.load(path.join(effects_folder, BROKEN_DOOR)).convert_alpha()
         self.gun_flashes = []
         for img in MUZZLE_FLASHES:
             self.gun_flashes.append(pygame.image.load(path.join(effects_folder, img)).convert_alpha())
+        # Item imgs load
         self.item_imgs = {}
         for item in ITEM_IMAGES:
             self.item_imgs[item] = pygame.image.load(path.join(item_folder, ITEM_IMAGES[item])).convert_alpha()
+        # Destructive obstacles imgs load
+        self.dest_obs_imgs = {}
+        for dest_obs in DEST_OBS_IMAGES:
+            self.dest_obs_imgs[dest_obs] = pygame.image.load(path.join(dest_obs_folder, DEST_OBS_IMAGES[dest_obs])).convert_alpha()
         # Lighting effect
         self.fog = pygame.Surface((self.scr_width, self.scr_height))
         self.fog.fill(NIGHT_COLOR)
@@ -68,6 +77,9 @@ class Game:
             self.effects_sounds[type] = pygame.mixer.Sound(path.join(snd_folder, EFFECTS_SOUNDS[type]))
         self.effects_sounds['level_start'].set_volume(0.05)
         self.effects_sounds['gun_pickup'].set_volume(0.05)
+        self.effects_sounds['broken_door'].set_volume(0.1)
+        self.effects_sounds['broken_glass'].set_volume(0.1)
+        self.effects_sounds['hit_door'].set_volume(0.3)
 
         self.weapon_sounds = {}
         for weapon in WEAPON_SOUNDS:
@@ -99,6 +111,7 @@ class Game:
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.walls = pygame.sprite.Group()
+        self.destructible_obstacles = pygame.sprite.Group()
         self.mobs = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
         self.items = pygame.sprite.Group()
@@ -120,6 +133,8 @@ class Game:
                 self.player = Player(self, obj_center.x, obj_center.y)
             if tile_object.name == 'wall':
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+            if tile_object.name in ['window_v', 'window_h', 'door_h', 'door_v']:
+                Destructible_obstacle(self, tile_object.name, obj_center.x, obj_center.y)
             if tile_object.name == 'zombie':
                 Mob(self, obj_center.x, obj_center.y)
             if tile_object.name in ['health', 'saved_off', 'ak47', 'kevlar', 'ammo_box', 'bullets']:
@@ -134,7 +149,7 @@ class Game:
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
-        pygame.mixer.music.play(loops=-1)
+        #pygame.mixer.music.play(loops=-1)
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000.0  # fix for Python 2.x
             self.events()
