@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="351">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="353">
  <tileset firstgid="1" source="Kenney topdown pack.tsx"/>
  <layer id="1" name="Ground" width="50" height="30">
   <data encoding="csv">
@@ -411,7 +411,6 @@
   <object id="305" name="ak47" x="1296" y="512" width="32" height="32"/>
   <object id="306" name="ak47" x="768" y="1808" width="32" height="32"/>
   <object id="308" name="kevlar" x="144" y="784" width="32" height="32"/>
-  <object id="309" name="saved_off" x="144" y="1232" width="32" height="32"/>
   <object id="311" name="bullets" x="1360" y="400" width="32" height="32"/>
   <object id="313" name="bullets" x="1408" y="400" width="32" height="32"/>
   <object id="314" name="bullets" x="1408" y="464" width="32" height="32"/>

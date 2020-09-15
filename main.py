@@ -174,6 +174,7 @@ class Game:
             # Health pack hits
             if hit.type == 'health' and self.player.health < PLAYER_HEALTH:
                 hit.kill()
+                self.player.heal()
                 self.player.add_health(HEALTH_REFILL)
                 self.effects_sounds['health_up'].play()
             # Soff hits
@@ -184,8 +185,8 @@ class Game:
                 except KeyError:
                     hit.kill()
                     self.player.weapon = 'saved_off'
-                    self.player.weapons.update(shotgun='saved_off')###
-                    self.player.ammo.update(saved_off=WEAPONS['saved_off']['ammo'])###
+                    self.player.weapons.update(shotgun='saved_off')
+                    self.player.ammo.update(saved_off=WEAPONS['saved_off']['ammo'])
                     self.effects_sounds['gun_pickup'].play()
             # AK hits
             if hit.type == 'ak47':
@@ -195,8 +196,8 @@ class Game:
                 except KeyError:
                     hit.kill()
                     self.player.weapon = 'ak47'
-                    self.player.weapons.update(rifle='ak47')###
-                    self.player.ammo.update(ak47=WEAPONS['ak47']['ammo'])###
+                    self.player.weapons.update(rifle='ak47')
+                    self.player.ammo.update(ak47=WEAPONS['ak47']['ammo'])
                     self.effects_sounds['gun_pickup'].play()
             # Kevlar hits
             if hit.type == 'kevlar' and self.player.armour < PLAYER_ARMOUR:
@@ -223,20 +224,23 @@ class Game:
 
         # Mobs hit player
         hits = pygame.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
+        now = pygame.time.get_ticks()
         for hit in hits:
-            if self.player.armour > 0:
-                self.player.armour -= ZOMBIE_DAMAGE
-            else:
-                self.player.health -= ZOMBIE_DAMAGE
-            hit.vel = (0, 0)
-            if self.player.health <= 0:
-                self.playing = False
-            # Sound
-            if random.random() < 0.7:
-                random.choice(self.player_hit_sounds).play()
-        if hits:
-            self.player.hit()
-            self.player.pos += vec(ZOMBIE_KNOCKBACK, 0).rotate(-hits[0].rot)
+            if now - self.player.last_hit > 300:
+                self.player.last_hit = now
+                if self.player.armour > 0:
+                    self.player.armour -= ZOMBIE_DAMAGE
+                else:
+                    self.player.health -= ZOMBIE_DAMAGE
+                hit.vel = (0, 0)
+                if self.player.health <= 0:
+                    self.playing = False
+                # Sound
+                if random.random() < 0.7:
+                    random.choice(self.player_hit_sounds).play()
+                if hits:
+                    self.player.hit()
+                    self.player.pos += vec(ZOMBIE_KNOCKBACK, 0).rotate(-hits[0].rot)
 
         # Bullets hit mobs
         hits = pygame.sprite.groupcollide(self.mobs, self.bullets, False, True)
@@ -392,7 +396,7 @@ class Game:
         pygame.draw.rect(self.screen, BLACK, bg_rect_outline, 3)
         # Circle and outline
         pygame.draw.circle(self.screen, GUN_CIRCLE_FILL, GUN_CIRCLE_CENTER, 35)
-        pygame.draw.circle(self.screen, BLACK, GUN_CIRCLE_CENTER, 36, 3)
+        pygame.draw.circle(self.screen, BLACK, GUN_CIRCLE_CENTER, 37, 3)
 
     def draw_armour_health(self, x, y, pct):
         if pct < 0:

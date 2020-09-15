@@ -43,13 +43,16 @@ class Player(pygame.sprite.Sprite):
         self.pos = vec(x, y)
         self.rot = 0
         self.last_shot = 0
+        self.last_hit = 0
         self.health = PLAYER_HEALTH
         self.armour = 0
         # we create this dict and then append values to it
         self.weapons = {'pistol': 'p2k'}
         self.weapon = self.weapons['pistol']
-        self.ammo = {self.weapon: WEAPONS[self.weapon]['ammo']}##
+        self.ammo = {self.weapon: WEAPONS[self.weapon]['ammo']}
+        self.healed = False
         self.damaged = False
+        self.moving = False
         self.gun_keys = []
 
     def get_keys(self):
@@ -87,9 +90,13 @@ class Player(pygame.sprite.Sprite):
             except KeyError:
                 pass
 
-
     def update(self):
         self.get_keys()
+        # Check if we move
+        if self.vel.x == 0:
+            self.moving = False
+        else:
+            self.moving = True
         # Check if we have armor on
         if self.armour > 0:
             self.image = self.game.player_imgs_kevlar[self.weapon]
@@ -105,6 +112,11 @@ class Player(pygame.sprite.Sprite):
                 self.image.fill((255, 255, 255, next(self.damage_alpha)), special_flags=pygame.BLEND_RGBA_MULT)
             except StopIteration:
                 self.damaged = False
+        if self.healed:
+            try:
+                self.image.fill((255, 255, 255, next(self.damage_alpha)), special_flags=pygame.BLEND_RGBA_MULT)
+            except StopIteration:
+                self.healed = False
 
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
@@ -135,8 +147,12 @@ class Player(pygame.sprite.Sprite):
             self.ammo[self.weapon] -= 1###
 
             for i in range(WEAPONS[self.weapon]['bullet_count']):
-                spread = random.uniform(-WEAPONS[self.weapon]['spread'],
-                                         WEAPONS[self.weapon]['spread'])  # Spread in degrees
+                if self.moving:
+                    spread = random.uniform(-WEAPONS[self.weapon]['spread'] * 2,
+                                             WEAPONS[self.weapon]['spread'] * 2)
+                else:
+                    spread = random.uniform(-WEAPONS[self.weapon]['spread'],
+                                            WEAPONS[self.weapon]['spread'])
                 Bullet(self.game, pos, direction.rotate(spread), WEAPONS[self.weapon]['bullet_damage'])
                 snd = random.choice(self.game.weapon_sounds[self.weapon])
                 if snd.get_num_channels() > 2:
@@ -147,6 +163,10 @@ class Player(pygame.sprite.Sprite):
     def hit(self):
         self.damaged = True
         self.damage_alpha = itertools.chain(DMG_APLHA * 3)
+
+    def heal(self):
+        self.healed = True
+        self.damage_alpha = itertools.chain(DMG_APLHA * 1)
 
 
 class Mob(pygame.sprite.Sprite):
@@ -213,10 +233,12 @@ class Mob(pygame.sprite.Sprite):
         else:
             col = RED
 
-        width = int(self.rect.width * self.health / ZOMBIE_HEALTH)
-        self.health_bar = pygame.Rect(0, 0, width, 7)
+        width = int(self.rect.height * self.health / ZOMBIE_HEALTH)
+        self.health_bar = pygame.Rect(0, 0, width, 8)
+        self.health_bar.midtop = (self.rect.width / 2, 0)
         if self.health < ZOMBIE_HEALTH:
             pygame.draw.rect(self.image, col, self.health_bar)
+            pygame.draw.rect(self.image, BLACK, self.health_bar, 2)
 
     def avoid_mobs(self):
         for mob in self.game.mobs:
@@ -315,14 +337,18 @@ class Destructible_obstacle(pygame.sprite.Sprite):
 
     def broken(self):
         if self.type in ['window_h', 'window_v']:
-            self.game.map_img.blit(self.game.broken_window, (self.rect.centerx - 32, self.rect.centery - 32))
+            rot = random.choice([0, 90, 180, 270])
+            self.game.map_img.blit(pygame.transform.rotate(self.game.broken_window, rot),
+                                   (self.rect.centerx - 32, self.rect.centery - 32))
             self.game.effects_sounds['broken_glass'].play()
             self.kill()
         elif self.type in ['door_h', 'door_v']:
             if self.health > 0:
                 self.game.effects_sounds['hit_door'].play()
             else:
-                self.game.map_img.blit(self.game.broken_door, (self.rect.centerx - 32, self.rect.centery - 32))
+                rot = random.choice([0, 90, 180, 270])
+                self.game.map_img.blit(pygame.transform.rotate(self.game.broken_door, rot),
+                                       (self.rect.centerx - 32, self.rect.centery - 32))
                 self.game.effects_sounds['broken_door'].play()
                 self.kill()
 
